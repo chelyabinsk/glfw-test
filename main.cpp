@@ -4,6 +4,7 @@
 #include <math.h>
 #include "shader.h"  // Shader loader helper
 #include "stb_image.h"  // Image loader helper
+#include "mpg123/src/libmpg123/mpg123.h"  // mpg123 library to help stream MP3
 #include <main.h>
 
 

@@ -1,0 +1,5 @@
+sudo apt install build-essential linux-headers-generic
+cd include/mpg123
+./configure
+make
+sudo make install
