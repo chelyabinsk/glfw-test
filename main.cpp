@@ -8,8 +8,11 @@
 #include <main.h>
 
 
-int s_width = 400;
-int s_height = 400;
+int s_width = 600;
+int s_height = 600;
+
+float offset[3] = {0.0f,0.0f,0.0f};
+float pos[2] = {0.0f,0.0f};
 
 int main(){
     glfwInit();
@@ -37,12 +40,15 @@ int main(){
     glViewport(0,0,s_width,s_height);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
+    float s_f = 0.1f;
+    float s_t = 1.0f;
+    float cols[4] = {1.0f,0.0f,0.0f,1.0f};
     float vertices[] = {
         // positions          // colors           // texture coords
-        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
+        s_f,  s_f, 0.0f,   cols[0],cols[1],cols[2],   s_t, s_t, // top right
+        s_f, -s_f, 0.0f,   cols[0],cols[1],cols[2],   s_t, 0.0f, // bottom right
+       -s_f, -s_f, 0.0f,   cols[0],cols[1],cols[2],   0.0f, 0.0f, // bottom left
+       -s_f,  s_f, 0.0f,   cols[0],cols[1],cols[2],   0.0f, s_t  // top left 
     };
     unsigned int indices[] = {  
         0, 1, 3, // first triangle
@@ -77,8 +83,8 @@ int main(){
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture1);
     // set the texture wrapping/filtering options (on the currently bound texture object)
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     
@@ -104,7 +110,7 @@ int main(){
     
     // Load texture into memory
     //int width, height, nrChannels;
-    data = stbi_load("textures/awesomeface.png",&width,&height,&nrChannels,0);
+    data = stbi_load("textures/dvdlogo.png",&width,&height,&nrChannels,0);
     if(data){
         stbi_set_flip_vertically_on_load(true);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -123,7 +129,9 @@ int main(){
 
     double lastTime = glfwGetTime();
     unsigned int nbFrames = 1;
-    //float cols[3] = {0.0f,0.0f,0.0f};
+    //float cols[4] = {0.0f,0.0f,1.0f,1.0f};
+    float vel_x = 0.0025f;
+    float vel_y = 0.004f;
     
     while(!glfwWindowShouldClose(window))
     {
@@ -133,9 +141,23 @@ int main(){
         // Do logic stuff here
         ///
         ///
-        
+        pos[0] += vel_x;
+        pos[1] += vel_y;
+        if((pos[0] + s_f >= 1) | (pos[0] - s_f <= -1)){
+            vel_x *= -1;
+            cols[0] = RandomNumber(0.0f,1.0f);
+            cols[1] = RandomNumber(0.0f,1.0f);
+            cols[2] = RandomNumber(0.0f,1.0f);
+        }
+        if((pos[1] + s_f >= 1) |( pos[1] - s_f <= -1)){
+            vel_y *= -1;
+            cols[0] = RandomNumber(0.0f,1.0f);
+            cols[1] = RandomNumber(0.0f,1.0f);
+            cols[2] = RandomNumber(0.0f,1.0f);
+        }
         // Draw Stuff here
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
         glActiveTexture(GL_TEXTURE0);
@@ -145,8 +167,9 @@ int main(){
         
         // Draw second triangle
         myShader.use();
-        //myShader.setVec3("offsets",offsets);
-        //myShader.setVec4("ourColor",cols);
+        myShader.setVec3("offset",pos);
+        //RandomNumber
+        myShader.setVec4("newColor",cols);
         
         glBindVertexArray(VAO);
         //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
@@ -177,6 +200,23 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
 void processInput(GLFWwindow *window){
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    if(glfwGetKey(window,GLFW_KEY_UP)==GLFW_PRESS){
+        offset[1] += 0.01;
+        pos[1] += 0.01;
+    }
+    if(glfwGetKey(window,GLFW_KEY_DOWN)==GLFW_PRESS){
+        offset[1] -= 0.01;
+        pos[1] -= 0.01;
+    }
+    if(glfwGetKey(window,GLFW_KEY_LEFT)==GLFW_PRESS){
+        offset[0] -= 0.01;
+        pos[0] -= 0.01;
+    }
+    if(glfwGetKey(window,GLFW_KEY_RIGHT)==GLFW_PRESS){
+        offset[0] += 0.01;
+        pos[0] += 0.01;
+    }
+    
 }
 
 void showFPS(GLFWwindow *pWindow,unsigned int &nbFrames, double &lastTime){
@@ -199,4 +239,9 @@ void showFPS(GLFWwindow *pWindow,unsigned int &nbFrames, double &lastTime){
         lastTime = currentTime;
     }
     
+}
+
+float RandomNumber(float Min, float Max)
+{
+    return ((float(rand()) / float(RAND_MAX)) * (Max - Min)) + Min;
 }
