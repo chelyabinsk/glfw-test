@@ -436,7 +436,7 @@ configure:5921: checking for windows.h
 configure:5921: result: no
 configure:6053: checking for library containing dlopen
 configure:6084: gcc -o conftest -g -O2   conftest.c  >&5
-/usr/bin/ld: /tmp/cce6LG0d.o: in function `main':
+/usr/bin/ld: /tmp/ccEHQF0k.o: in function `main':
 /home/pan/Documents/glfw-test/include/mpg123/conftest.c:33: undefined reference to `dlopen'
 collect2: error: ld returned 1 exit status
 configure:6084: $? = 1

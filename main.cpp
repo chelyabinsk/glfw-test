@@ -1,15 +1,24 @@
-#include <glad.h>
-#include <GLFW/glfw3.h>
+#include <glad/gl.h>
+//#include <GLFW/glfw3.h>
+#include "glfw/include/GLFW/glfw3.h"
 #include <iostream>
 #include <math.h>
 #include "shader.h"  // Shader loader helper
 #include "stb_image.h"  // Image loader helper
 #include "mpg123/src/libmpg123/mpg123.h"  // mpg123 library to help stream MP3
+
+// GLM maths library
+#include <glm/glm/glm.hpp>
+#include <glm/glm/gtc/matrix_transform.hpp>
+#include <glm/glm/gtc/type_ptr.hpp>
+
+#include "plot/surface.h"  // Class to deal with the actual rendering logic
+
 #include <main.h>
 
 
-int s_width = 400;
-int s_height = 400;
+int s_width = 500;
+int s_height = 500;
 
 int main(){
     glfwInit();
@@ -37,12 +46,14 @@ int main(){
     glViewport(0,0,s_width,s_height);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
+    float obj_s = 1.0f;
+    
     float vertices[] = {
         // positions          // colors           // texture coords
-        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
+        obj_s,  obj_s, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+        obj_s, -obj_s, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+       -obj_s, -obj_s, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+       -obj_s,  obj_s, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
     };
     unsigned int indices[] = {  
         0, 1, 3, // first triangle
@@ -116,14 +127,25 @@ int main(){
     // Free image memory
     stbi_image_free(data);
     
-    Shader myShader("shaders/basic_vertex.glsl","shaders/basic_fragment2.glsl");
-    myShader.use();
-    myShader.setInt("texture1", 0);
-    myShader.setInt("texture2", 1);
+    Surface s;
+    
+    // Shader myShader("shaders/basic_vertex.glsl","shaders/basic_fragment2.glsl");
+    // myShader.use();
+    // myShader.setInt("texture1", 0);
+    // myShader.setInt("texture2", 1);
 
     double lastTime = glfwGetTime();
     unsigned int nbFrames = 1;
     //float cols[3] = {0.0f,0.0f,0.0f};
+    
+   
+    // unsigned int transformLoc = glGetUniformLocation(myShader.ID,"transform");
+    // 
+    // glm::mat4 unit_mat = glm::mat4(1.0f);
+    // glm::mat4 trans = glm::mat4(1.0f);
+    // 
+    // unsigned int N_bars = 50;
+    // unsigned int i;
     
     while(!glfwWindowShouldClose(window))
     {
@@ -135,26 +157,9 @@ int main(){
         ///
         
         // Draw Stuff here
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        s.frame();
         
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-        
-        // Draw second triangle
-        myShader.use();
-        //myShader.setVec3("offsets",offsets);
-        //myShader.setVec4("ourColor",cols);
-        
-        glBindVertexArray(VAO);
-        //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-        //glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        //glDrawElements(GL_TRIANGLES,sizeof(vertecies),GL_UNSIGNED_INT,0);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        
+
         glfwSwapBuffers(window);
         glfwPollEvents();
         
@@ -199,4 +204,8 @@ void showFPS(GLFWwindow *pWindow,unsigned int &nbFrames, double &lastTime){
         lastTime = currentTime;
     }
     
+}
+
+float RandomNumber(float Min, float Max){
+    return ((float(rand()) / float(RAND_MAX)) * (Max - Min)) + Min;
 }

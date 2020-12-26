@@ -1,13 +1,12 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <glad.h> // include glad to get all the required OpenGL headers
+#include <glad/gl.h> // include glad to get all the required OpenGL headers
 
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
-
 
 class Shader
 {
@@ -17,6 +16,8 @@ public:
   
   // constructor reads and builds the shader
   Shader(const char* vertexPath, const char* fragmentPath);
+  Shader();
+  void loadShader(const char* vertexPath, const char* fragmentPath);
   // use/activate the shader
   void use();
   // utility uniform functions
