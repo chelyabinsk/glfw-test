@@ -9,6 +9,7 @@ public:
   int plotType = 0;
   // Constructor
   Surface();
+  ~Surface();
   void frame();
 private:
   LinePlot linePlot;

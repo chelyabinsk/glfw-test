@@ -7,8 +7,8 @@ Square::Square(){
     // positions          // colors           // texture coords
     obj_s,  obj_s, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
     obj_s, -obj_s, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-    -obj_s, -obj_s, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-    -obj_s,  obj_s, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
+   -obj_s, -obj_s, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+   -obj_s,  obj_s, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
   };
   unsigned int indices[] = {  
     3, 0, 1, // first triangle
@@ -39,4 +39,10 @@ Square::Square(){
   
   n_vert = sizeof(vertices);
   
+}
+
+Square::~Square(){
+  // glDeleteVertexArrays(1, &VAO);
+  // glDeleteBuffers(1, &VBO);
+  // glDeleteBuffers(1, &EBO);
 }

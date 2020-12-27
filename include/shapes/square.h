@@ -5,5 +5,6 @@ class Square{
 public:
   unsigned int VBO, VAO, EBO, n_vert;
   Square();
+  ~Square();
 };
 #endif

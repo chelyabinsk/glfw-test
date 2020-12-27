@@ -16,11 +16,12 @@ public:
   unsigned int N_bars;
   Square square;
   float centre_offset;
-  float min_bar_spacing = 0.01f;
+  float min_bar_spacing = 0.9f;
   
   // Constructor
   CirclePlot(unsigned int N_bars, float centre_offset);
   CirclePlot();
+  ~CirclePlot();
   void gen_bars(unsigned int N_bars, float centre_offset);
   void loadDefaultShader();
   
@@ -39,6 +40,7 @@ private:
   unsigned int i;
   
   unsigned int transformLoc;
+  unsigned int colorLoc;
   glm::mat4 unit_mat = glm::mat4(1.0f);
   glm::mat4 trans = glm::mat4(1.0f);
 };

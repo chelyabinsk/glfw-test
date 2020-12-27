@@ -1,6 +1,6 @@
 EXEC_FILE=test_file
 
-FLAGS=-Wall
+FLAGS=-Wall -g
 LIBS=-lglfw -ldl -Iglad
 IN_PATH=-Iinclude
 O_FILES= include/glad/glad.o \

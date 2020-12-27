@@ -92,6 +92,10 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath){
   loadShader(vertexPath,fragmentPath);
 }
 
+Shader::~Shader(){
+  
+}
+
 Shader::Shader(){
   // Nothing going on here. go away
 }
