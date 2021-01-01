@@ -2,6 +2,7 @@
 #include <mpg123.h>
 #include <fftw3.h>  // Inlcude the FFT
 #include <iostream>
+#include <fstream>
 #include <math.h>
 
 #define BITS 8
@@ -29,7 +30,7 @@ int main(int argc, char *argv[])
     driver = ao_default_driver_id();
     mpg123_init();
     mh = mpg123_new(NULL, &err);
-    buffer_size = 2*mpg123_outblock(mh);
+    buffer_size = mpg123_outblock(mh);
     buffer = (char*)malloc(buffer_size * sizeof(unsigned char));
 
     /* open the file and get the decoding format */
@@ -73,8 +74,15 @@ int main(int argc, char *argv[])
       // Do the FFT
       fftwf_execute(p);
 
-      for(int i=0;i<buffer_size/4;i++)
-        std::cout << 2.0f*sqrt(out[0][i]*out[0][i] + out[1][i]*out[1][i]) << " ";
+      std::ofstream myfile;
+      myfile.open ("fft_out.csv");
+      for(int i=0;i<buffer_size/2;i++){
+        //std::cout << 2.0f*sqrt(out[0][i]*out[0][i] + out[1][i]*out[1][i]) << " ";
+        // Save FFT to a text file
+        myfile << i << "," << 2.0f*sqrt(out[0][i]*out[0][i] + out[1][i]*out[1][i]) << "\n";
+      }
+      std:: cout << "rate=" << rate << " samples="  << buffer_size << std::endl;
+      myfile.close();
       
 
       // Try to do FFT on the buffer

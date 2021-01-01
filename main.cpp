@@ -1,6 +1,5 @@
 #include "main.h"
 
-
 int s_width = 500;
 int s_height = 500;
 

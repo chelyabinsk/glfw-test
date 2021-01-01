@@ -10,9 +10,14 @@ O_FILES= include/glad/glad.o \
          include/plot/circlePlot.o \
          include/plot/linePlot.o \
          include/plot/surface.o \
-         include/shapes/square.o
+         include/shapes/square.o \
+		 include/player.o
          
 all:	execute
+
+# Compile the audio player component
+include/player.o: include/player.cpp include/player.h
+	g++ $< -o $@ -c $(IN_PATH) $(FLAGS)
 
 # Compile static sound player
 play: play.c
