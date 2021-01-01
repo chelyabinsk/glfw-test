@@ -1,7 +1,7 @@
 EXEC_FILE=test_file
 
 FLAGS=-Wall -g
-LIBS=-lglfw -ldl -Iglad
+LIBS=-lglfw -ldl -Iglad -lao -lmpg123 -lfftw3f -lm
 IN_PATH=-Iinclude
 O_FILES= include/glad/glad.o \
          include/shader.o \
@@ -13,6 +13,10 @@ O_FILES= include/glad/glad.o \
          include/shapes/square.o
          
 all:	execute
+
+# Compile static sound player
+play: play.c
+	g++ -O2 -o play play.c -lao -lmpg123 -Iinclude -lfftw3f -lm
 
 # Compile GLAD
 include/glad/glad.o: include/glad/glad.c include/glad/gl.h

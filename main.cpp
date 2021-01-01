@@ -1,20 +1,4 @@
-#include <glad/gl.h>
-//#include <GLFW/glfw3.h>
-#include "glfw/include/GLFW/glfw3.h"
-#include <iostream>
-#include <math.h>
-#include "shader.h"  // Shader loader helper
-#include "stb_image.h"  // Image loader helper
-#include "mpg123/src/libmpg123/mpg123.h"  // mpg123 library to help stream MP3
-
-// GLM maths library
-#include <glm/glm/glm.hpp>
-#include <glm/glm/gtc/matrix_transform.hpp>
-#include <glm/glm/gtc/type_ptr.hpp>
-
-#include "plot/surface.h"  // Class to deal with the actual rendering logic
-
-#include <main.h>
+#include "main.h"
 
 
 int s_width = 500;
