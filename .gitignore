@@ -1,4 +1,5 @@
 test_file
+*.mp3
 
 # Prerequisites
 *.d

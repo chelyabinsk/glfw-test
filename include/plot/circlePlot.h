@@ -19,10 +19,10 @@ public:
   float min_bar_spacing = 0.9f;
   
   // Constructor
-  CirclePlot(unsigned int N_bars, float centre_offset);
+  CirclePlot(size_t N_bars, float centre_offset);
   CirclePlot();
   ~CirclePlot();
-  void gen_bars(unsigned int N_bars, float centre_offset);
+  void gen_bars(size_t N_bars, float centre_offset);
   void loadDefaultShader();
   
   float calc_width();

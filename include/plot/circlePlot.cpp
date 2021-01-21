@@ -2,7 +2,7 @@
 #include <math.h>
 #include <iostream>
 
-CirclePlot::CirclePlot(unsigned int N_bars, float centre_offset): N_bars(N_bars), 
+CirclePlot::CirclePlot(size_t N_bars, float centre_offset): N_bars(N_bars), 
                                                            centre_offset(centre_offset),
                                                            defaultShader(){
   loadDefaultShader();
@@ -22,7 +22,7 @@ void CirclePlot::loadDefaultShader(){
   defaultShader.use();
 }
 
-void CirclePlot::gen_bars(unsigned int _N_bars, float _centre_offset){
+void CirclePlot::gen_bars(size_t _N_bars, float _centre_offset){
   // Set global variables
   N_bars = _N_bars;
   centre_offset = _centre_offset;

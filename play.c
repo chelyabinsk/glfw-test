@@ -71,24 +71,25 @@ int main(int argc, char *argv[])
       for(int i=0;i<buffer_size/2;i++)
         in[i] = buffer[i];
 
+
       // Do the FFT
       fftwf_execute(p);
 
-      std::ofstream myfile;
-      myfile.open ("fft_out.csv");
-      for(int i=0;i<buffer_size/2;i++){
-        //std::cout << 2.0f*sqrt(out[0][i]*out[0][i] + out[1][i]*out[1][i]) << " ";
-        // Save FFT to a text file
-        myfile << i << "," << 2.0f*sqrt(out[0][i]*out[0][i] + out[1][i]*out[1][i]) << "\n";
-      }
-      std:: cout << "rate=" << rate << " samples="  << buffer_size << std::endl;
-      myfile.close();
+      // std::ofstream myfile;
+      // myfile.open ("fft_out.csv");
+      // for(int i=0;i<buffer_size/2;i++){
+      //   //std::cout << 2.0f*sqrt(out[0][i]*out[0][i] + out[1][i]*out[1][i]) << " ";
+      //   // Save FFT to a text file
+      //   myfile << i << "," << 2.0f*sqrt(out[0][i]*out[0][i] + out[1][i]*out[1][i]) << "\n";
+      // }
+      // std:: cout << "rate=" << rate << " samples="  << buffer_size << std::endl;
+      // myfile.close();
       
 
       // Try to do FFT on the buffer
 
 
-      break;
+      //break;
     }
     //time += 0.25*buffer_size/rate;
     std::cout << time << std::endl;

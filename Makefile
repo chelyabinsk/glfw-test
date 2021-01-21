@@ -1,7 +1,7 @@
 EXEC_FILE=test_file
 
-FLAGS=-Wall -g
-LIBS=-lglfw -ldl -Iglad -lao -lmpg123 -lfftw3f -lm
+FLAGS=-std=c++11 -Wall -g
+LIBS=-lglfw -ldl -Iglad -lao -lmpg123 -lfftw3f -lm -pthread
 IN_PATH=-Iinclude
 O_FILES= include/glad/glad.o \
          include/shader.o \

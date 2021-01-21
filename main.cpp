@@ -3,6 +3,8 @@
 int s_width = 500;
 int s_height = 500;
 
+
+
 int main(){
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
@@ -29,10 +31,18 @@ int main(){
     glViewport(0,0,s_width,s_height);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
-    Surface s;
+    //Player playerClass;   // Player class
+    //std::thread th2(playerClass.lazy_play);  // Put audioplayer/fft stuff into a separate thread
+
+    //Player * taskPtr = new Player();  // An object to the player class
+    Surface surfaceClass;  // Surface class
 
     // double lastTime = glfwGetTime();
     // unsigned int nbFrames = 1;
+
+    //std::thread th(&Player::lazy_play, taskPtr);  // Start player in a separate thread
+
+    int frameCount = 0;
 
     while(!glfwWindowShouldClose(window))
     {
@@ -42,19 +52,28 @@ int main(){
         // Do logic stuff here
         ///
         ///
-        
+        //playerClass.play_in_loop();
+
+        if(frameCount > 5){
+            //playerClass.calc_fft();
+            //std::cout << playerClass.time << std::endl;
+        }
         // Draw Stuff here
-        s.frame();
-        
+        surfaceClass.frame();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
         
         //showFPS(window,nbFrames,lastTime);
+
+        frameCount++;
+
     }
-    
+
+    //delete taskPtr;    
     
     glfwTerminate();
+
     return 0;
 }
 
@@ -92,4 +111,10 @@ void showFPS(GLFWwindow *pWindow,unsigned int &nbFrames, double &lastTime){
 
 float RandomNumber(float Min, float Max){
     return ((float(rand()) / float(RAND_MAX)) * (Max - Min)) + Min;
+}
+
+void show_thread(const std::string &keyword){
+    std::string cmd("ps -T | grep ");
+    cmd += keyword;
+    system(cmd.c_str());
 }

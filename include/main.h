@@ -24,3 +24,5 @@ unsigned int init_fragment_shader2(unsigned int shaderProgram);
 
 void showFPS(GLFWwindow *pWindow,unsigned int &nbFrames, double &lastTime);
 float RandomNumber(float Min, float Max);
+
+void show_thread(const std::string &keyword);
