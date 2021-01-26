@@ -19,6 +19,12 @@
 //#include <pthread.h>
 #include <sys/prctl.h>
 
+// Output file writer
+#include <iostream>
+#include <fstream>
+
+#include "pocketfft/floatfft.h"
+
 #define BITS 8
 
 class Player{
@@ -27,9 +33,9 @@ public:
     long rate;
     size_t buffer_size;
     float time;
-    float* rawFFT;
+    double* rawFFT;
 
-    float *sep_vec;
+    double *sep_vec;
     
     size_t num_groups;
 
@@ -64,10 +70,17 @@ private:
 
     // FFTw stuff
     int fft_size;
-    float *in;
-    fftwf_complex *out;
-    fftwf_plan p;
+    double *in;
+    fftw_complex *out;
+    fftw_plan p;
     unsigned flag;
+
+    // pocketfft stuff
+    FFTworker fftClass;
+
+
+    // Initialisation flags
+    bool plan_init;
 };
 
 #endif

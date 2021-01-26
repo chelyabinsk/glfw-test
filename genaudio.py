@@ -105,7 +105,7 @@ def save_wav(file_name):
     return
 
 
-combine_sinewave(volume=0.5)
+combine_sinewave(volume=0.5,freqs=[400,2000])
 append_silence()
 combine_sinewave(volume=0.5,freqs=[1000,2000])
 append_silence()

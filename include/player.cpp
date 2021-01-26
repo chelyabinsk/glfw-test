@@ -7,6 +7,8 @@
 // Constructor
 Player::Player(){
     std::cout << "Init player" << std::endl;
+    
+    plan_init = false;
 }
 
 void Player::update_num_groups(size_t n){
@@ -23,18 +25,24 @@ void Player::init_thread(){
     buffer_size = mpg123_outblock(mh);
     buffer = (char*)malloc(buffer_size * sizeof(unsigned char));
 
+    rawFFT = (double*) malloc(sizeof(double) * buffer_size/2);
+    sep_vec = (double*) malloc(sizeof(double) * num_groups);
+
     read_file("black.mp3");  // Load file
 
-    // Prepare FFTw things
-    flag = 0;
-    in = (float*) fftwf_malloc(sizeof(float) * buffer_size);
-    out = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex) * buffer_size);
-    p = fftwf_plan_dft_r2c_1d(buffer_size,in, out,flag);
+    // // Prepare FFTw things
+    // flag = 0;
+    // in = (double*) fftw_malloc(sizeof(double) * buffer_size);
+    // out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * buffer_size);
+    // p = fftw_plan_dft_r2c_1d(buffer_size,in, out,flag);
 
-    rawFFT = (float*) malloc(sizeof(float) * buffer_size/2);
-    sep_vec = (float*) malloc(sizeof(float) * num_groups);
 
     // fftwf_free(sep_arrs);
+
+    plan_init = false;
+
+    // Prepare the pocketfft class
+    fftClass.set_fft_width(buffer_size);
 
     lazy_play();
 
@@ -44,7 +52,7 @@ void Player::gen_groups(){
     float step_size = 1.0f/num_groups;
     groups.assign(num_groups,0.0f);
     for(size_t j=0;j<num_groups;j++){
-        groups[j] = 15.0f*exp(j*step_size*7.22f);
+        groups[j] = 15.0f*exp(j*step_size*7.12f);
     }
 }
 
@@ -70,38 +78,59 @@ void Player::read_file(const char* filePath){
 
 void Player::lazy_play(){
     size_t group_pos = 0;
-    float freq_space = buffer_size/rate;
+    float freq_space = 1.0f*rate/(buffer_size);
+
+    for(i=0;i<num_groups;i++)
+        std::cout << groups[i] << " ";
+    std::cout << std::endl << freq_space << " " << buffer_size << " " << rate << std::endl;
+
     /* decode and play */
     // Will add pause an rewind functions later
     while (mpg123_read(mh, buffer, buffer_size, &done) == MPG123_OK){
       ao_play(dev, buffer, done);
-      time += 0.25*freq_space;
+      time += 0.5*freq_space;
       //mpg123_tellframe  -- find current frame number
       //std::cout << mpg123_tellframe(mh) << std::endl;
 
-      // Copy buffer for FFT
-      for(i=0;i<buffer_size/2;i++)
-        in[i] = buffer[i];
+    //   // Copy buffer for FFT
+    //   for(i=0;i<buffer_size/2;i++)
+    //     in[i] = buffer[i];
 
       // Do the FFT
-      fftwf_execute(p);
+    //   fftw_execute(p);
       
-      group_pos = 0;
-      for(i=0;i<num_groups;i++)
-        sep_vec[i] = 0;
-      // Calculate abs value of the FFT for plot
-      for(i=0;i<buffer_size/2;i++){
-        rawFFT[i] = 2.0f*sqrt(out[0][i]*out[0][i] + out[1][i]*out[1][i]);
-        if(groups[group_pos]<=(i+1)*freq_space)
-            group_pos++;
-        if(group_pos>=num_groups)
-            group_pos = num_groups - 1;
-        sep_vec[group_pos] += rawFFT[i];
-      }
+    //   group_pos = 0;
+    //   for(i=0;i<num_groups;i++)
+    //     sep_vec[i] = 0;
+    //   // Calculate abs value of the FFT for plot
+    //   for(i=0;i<buffer_size/2;i++){
+    //     rawFFT[i] = 2.0f*sqrt(out[0][i]*out[0][i] + out[1][i]*out[1][i]);
+    //     // std::cout << (i+1)*freq_space << std::endl;
+    //     if(groups[group_pos]<=(i+1)*freq_space){
+    //         group_pos++;
+    //     }
+    //     if(group_pos>=num_groups){
+    //         group_pos = num_groups - 1;
+    //     }
+    //     sep_vec[group_pos] += rawFFT[i];
+    //   }
 
-     for(i=0;i<num_groups;i++)
-        std::cout << sep_vec[i] << " ";
-    std::cout << std::endl; 
+    //   std::ofstream myfile;
+    //   myfile.open ("fft_out.csv");
+    //   for(i=0;i<buffer_size/2;i++){
+    //     //std::cout << 2.0f*sqrt(out[0][i]*out[0][i] + out[1][i]*out[1][i]) << " ";
+    //     // Save FFT to a text file
+    //     myfile << i << "," << 2.0f*sqrt(out[i][0]*out[i][0] + out[i][1]*out[i][1]) << "\n";
+    //   }
+    //   myfile.close();
+
+    // if(time > 1){
+    //     break;
+    // }
+
+    //  for(i=0;i<num_groups;i++)
+    //     std::cout << sep_vec[i]/pow(2,30) << " ";
+    // std::cout << std::endl; 
 
     //   std::cout << groups[num_groups-1] << std::endl;
     //   std::cout << rawFFT[1] << std::endl;
@@ -111,7 +140,8 @@ void Player::lazy_play(){
     std::cout << time << std::endl;
 
     /* clean up */
-    ao_close(dev); // Good
+    // ao_close(dev); // Good
+
 }
 
 void Player::start_thread(const std::string &tname)
@@ -137,15 +167,19 @@ void Player::stop_thread(const std::string &tname)
 // Deconstructor
 Player::~Player(){
     // Cleaup
-    fftwf_destroy_plan(p);
-    fftwf_free(out);
-    fftwf_free(in);
+    if(plan_init){
+        // fftw_free(in);
+        // fftw_free(out);
+        // fftw_destroy_plan(p);
+    }
+    
     free(buffer);
     free(rawFFT);
     free(sep_vec);
-    // ao_close(dev);
+
     mpg123_close(mh);
     mpg123_delete(mh);
     mpg123_exit();
+    
     ao_shutdown();
 }
