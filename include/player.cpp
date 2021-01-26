@@ -104,36 +104,19 @@ void Player::lazy_play(){
       // Do the FFT
       fftClass.do_fft(in,rawFFT);
     
-      std::ofstream myfile;
-      myfile.open ("fft_out.csv");
+    //   std::ofstream myfile;
+    //   myfile.open ("fft_out.csv");
       
-      for(i=0;i<rawFFT.size();++i){
-        //std::cout << 2.0f*sqrt(out[0][i]*out[0][i] + out[1][i]*out[1][i]) << " ";
-        // Save FFT to a text file
-        myfile << i << "," << 2.f*abs(rawFFT[i]) << "\n";
-      }
-      myfile.close();
+    //   for(i=0;i<rawFFT.size();++i){
+    //     //std::cout << 2.0f*sqrt(out[0][i]*out[0][i] + out[1][i]*out[1][i]) << " ";
+    //     // Save FFT to a text file
+    //     myfile << i << "," << 2.f*abs(rawFFT[i]) << "\n";
+    //   }
+    //   myfile.close();
 
-    break;
+    // break;
 
-    // if(time > 1){
-    //     break;
-    // }
-
-    //  for(i=0;i<num_groups;i++)
-    //     std::cout << sep_vec[i]/pow(2,30) << " ";
-    // std::cout << std::endl; 
-
-    //   std::cout << groups[num_groups-1] << std::endl;
-    //   std::cout << rawFFT[1] << std::endl;
-    //   std::cout << time << std::endl;
     }
-    //time += 0.25*buffer_size/rate;
-    std::cout << time << std::endl;
-
-    /* clean up */
-    // ao_close(dev); // Good
-
 }
 
 void Player::start_thread(const std::string &tname)
