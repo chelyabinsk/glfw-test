@@ -27,13 +27,15 @@
 
 #define BITS 8
 
+using namespace std; 
+
 class Player{
 public:
     int channels;
     long rate;
     size_t buffer_size;
     float time;
-    double* rawFFT;
+    vector<float> rawFFT;
 
     double *sep_vec;
     
@@ -59,7 +61,7 @@ private:
     // Audio player
     size_t i;
     mpg123_handle *mh;
-    char *buffer;
+    std::vector<char> buffer;
     size_t done;
     int err;
 
@@ -68,19 +70,10 @@ private:
     ao_sample_format format;
     int encoding;
 
-    // FFTw stuff
-    int fft_size;
-    double *in;
-    fftw_complex *out;
-    fftw_plan p;
-    unsigned flag;
-
     // pocketfft stuff
     FFTworker fftClass;
 
-
-    // Initialisation flags
-    bool plan_init;
+    vector<float> in;
 };
 
 #endif

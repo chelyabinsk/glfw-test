@@ -24,7 +24,7 @@ public:
     void do_fft(vector<float> in, vector<float> &out);
 
     size_t num_groups;
-    vector<size_t> shape[1];
+    vector<size_t> shape;
     
 private:
     // Generate vector of random floats
@@ -33,5 +33,6 @@ private:
     stride_t stridein{sizeof(float)};
     stride_t strideout{sizeof(complex<float>)};
     shape_t axes{0};
+    vector<complex<float>> resf;
 };
 #endif

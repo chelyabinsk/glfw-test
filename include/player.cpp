@@ -7,8 +7,6 @@
 // Constructor
 Player::Player(){
     std::cout << "Init player" << std::endl;
-    
-    plan_init = false;
 }
 
 void Player::update_num_groups(size_t n){
@@ -23,27 +21,18 @@ void Player::init_thread(){
     mpg123_init();
     mh = mpg123_new(NULL, &err);
     buffer_size = mpg123_outblock(mh);
-    buffer = (char*)malloc(buffer_size * sizeof(unsigned char));
-
-    rawFFT = (double*) malloc(sizeof(double) * buffer_size/2);
+    buffer.resize(buffer_size);
+    in.resize(buffer_size/2);
+    
+    // Might want to do the grouping in the plot class
     sep_vec = (double*) malloc(sizeof(double) * num_groups);
 
     read_file("black.mp3");  // Load file
 
-    // // Prepare FFTw things
-    // flag = 0;
-    // in = (double*) fftw_malloc(sizeof(double) * buffer_size);
-    // out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * buffer_size);
-    // p = fftw_plan_dft_r2c_1d(buffer_size,in, out,flag);
-
-
-    // fftwf_free(sep_arrs);
-
-    plan_init = false;
-
     // Prepare the pocketfft class
-    fftClass.set_fft_width(buffer_size);
+    fftClass.set_fft_width(buffer_size/2);
 
+    // Start the actual player
     lazy_play();
 
 }
@@ -67,10 +56,18 @@ void Player::read_file(const char* filePath){
     /* set the output format and open the output device */
     format.bits = mpg123_encsize(encoding) * BITS;
     format.rate = rate;
-    format.channels = channels;
+    format.channels = channels; // Try to force MONO
     format.byte_format = AO_FMT_NATIVE;
     format.matrix = 0;
     dev = ao_open_live(driver, &format, NULL);
+    
+    std::cout << "channels=" << channels << std::endl;
+
+    // I DON'T KNOW IF THIS IS RIGHT!
+    // BUT IT LOOKS LIKE NUMBER OF CHANNELS AFFECTS HOW MUCH DATA IS READ
+    // PROBABLY WRONG!
+    rawFFT.resize((buffer_size/(2*2*pow(2,channels-1))) +1);
+    in.resize(buffer_size/(2*pow(2,channels-1)));  // div by 2 because 2x char = short int
 
     // Reset song timer
     time = 0;
@@ -86,43 +83,38 @@ void Player::lazy_play(){
 
     /* decode and play */
     // Will add pause an rewind functions later
-    while (mpg123_read(mh, buffer, buffer_size, &done) == MPG123_OK){
-      ao_play(dev, buffer, done);
+    while (mpg123_read(mh, &buffer[0], buffer_size, &done) == MPG123_OK){
+      ao_play(dev, &buffer[0], done);
       time += 0.5*freq_space;
       //mpg123_tellframe  -- find current frame number
       //std::cout << mpg123_tellframe(mh) << std::endl;
 
-    //   // Copy buffer for FFT
-    //   for(i=0;i<buffer_size/2;i++)
-    //     in[i] = buffer[i];
+      // "clever" way to change (2x char)=(short int) INTO float
+      short* tst = reinterpret_cast<short*>(&buffer[0]);
+      in.assign(tst,tst+buffer_size/2);
+
+    // TODO: Find a way to convert stereo to mono ...
+    //   if(channels>1){
+    //       for(i=0;i<in.size();++i){
+    //           in[i] += buffer[i+(buffer_size/2)/2];
+    //       }
+    //   }
+
 
       // Do the FFT
-    //   fftw_execute(p);
+      fftClass.do_fft(in,rawFFT);
+    
+      std::ofstream myfile;
+      myfile.open ("fft_out.csv");
       
-    //   group_pos = 0;
-    //   for(i=0;i<num_groups;i++)
-    //     sep_vec[i] = 0;
-    //   // Calculate abs value of the FFT for plot
-    //   for(i=0;i<buffer_size/2;i++){
-    //     rawFFT[i] = 2.0f*sqrt(out[0][i]*out[0][i] + out[1][i]*out[1][i]);
-    //     // std::cout << (i+1)*freq_space << std::endl;
-    //     if(groups[group_pos]<=(i+1)*freq_space){
-    //         group_pos++;
-    //     }
-    //     if(group_pos>=num_groups){
-    //         group_pos = num_groups - 1;
-    //     }
-    //     sep_vec[group_pos] += rawFFT[i];
-    //   }
+      for(i=0;i<rawFFT.size();++i){
+        //std::cout << 2.0f*sqrt(out[0][i]*out[0][i] + out[1][i]*out[1][i]) << " ";
+        // Save FFT to a text file
+        myfile << i << "," << 2.f*abs(rawFFT[i]) << "\n";
+      }
+      myfile.close();
 
-    //   std::ofstream myfile;
-    //   myfile.open ("fft_out.csv");
-    //   for(i=0;i<buffer_size/2;i++){
-    //     //std::cout << 2.0f*sqrt(out[0][i]*out[0][i] + out[1][i]*out[1][i]) << " ";
-    //     // Save FFT to a text file
-    //     myfile << i << "," << 2.0f*sqrt(out[i][0]*out[i][0] + out[i][1]*out[i][1]) << "\n";
-    //   }
-    //   myfile.close();
+    break;
 
     // if(time > 1){
     //     break;
@@ -166,20 +158,15 @@ void Player::stop_thread(const std::string &tname)
 
 // Deconstructor
 Player::~Player(){
-    // Cleaup
-    if(plan_init){
-        // fftw_free(in);
-        // fftw_free(out);
-        // fftw_destroy_plan(p);
-    }
-    
-    free(buffer);
-    free(rawFFT);
+    // Cleaup    
     free(sep_vec);
 
+    // MP3 decoder
     mpg123_close(mh);
     mpg123_delete(mh);
     mpg123_exit();
     
+    // Sound maker
+    // ao_close(dev);  // This sometimes crashes :(
     ao_shutdown();
 }

@@ -17,7 +17,8 @@ template<typename T> void crand(vector<complex<T>> &v)
 
 void frand(vector<float> &v){
   for(float &i:v){
-    i = drand48();
+    // i = (short)drand48();
+    i = (short)(rand());
   }
 }
 

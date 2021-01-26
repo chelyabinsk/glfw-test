@@ -6,7 +6,7 @@ M <- 73728
 step <- rate/M
 d[,1] <- d[,1]/M*rate
 
-num_groups <- 100
+num_groups <- 40
 
 # Groupings
 groups <- rep(0,num_groups)
@@ -40,24 +40,25 @@ for(j in seq(x0,x1,length.out = num_groups)){
 groups
 #plot(d[,1],ifelse(d[,2]>quantile(d[,2],0.999),d[,2],0),type='l')
 plot(d[,1],d[,2],type='l')
-for(i in groups){
-  lines(rep(i/M*rate,2),seq(0,2^32,length.out = 2),col="red")
-}
+#plot(d[,2],type='l')
+# for(i in groups){
+#   lines(rep(i/M*rate,2),seq(0,2^32,length.out = 2),col="red")
+# }
 
 grouped <- rep(0,num_groups)
 
 group_pos = 1
 qqq <- as.vector(quantile(d[,2],0.995))#max(d[,2])*0.75#0#as.vector(quantile(d[,2],0.9995))
-for(i in 1:(M/2-1)){
+for(i in 1:(M/2)){
   if(groups[group_pos]<=(i+1)*step){
     group_pos <- group_pos + 1
   }
   if(group_pos>=num_groups){
     group_pos = num_groups
   }
-  if(d[i,2] > qqq){
+  #if(d[i,2] > qqq){
     grouped[group_pos] <- grouped[group_pos] + d[i,2]
-  }
+  #}
   i
 }
 
